@@ -1,4 +1,6 @@
 class DataController < ApplicationController
+  require "csv"
+
   before_action :set_public_cache_header
 
   def autocomplete
@@ -41,6 +43,38 @@ class DataController < ApplicationController
     filing = ThirteenF.without_xml_fields.find_by!(external_id: params[:external_id])
     other_filing = ThirteenF.without_xml_fields.find_by!(external_id: params[:other_external_id])
     render json: DataTableFormatter.thirteen_f_comparison_to_datatable(filing, other_filing)
+  end
+
+  def compare_holdings_keyword_csv
+    filing = ThirteenF.without_xml_fields.find_by!(external_id: params[:external_id])
+    other_filing = ThirteenF.without_xml_fields.find_by!(external_id: params[:other_external_id])
+
+    head :bad_request and return unless filing.cik == other_filing.cik
+
+    keyword = params[:keyword].to_s.strip
+    head :bad_request and return if keyword.blank?
+
+    rows = DataTableFormatter.thirteen_f_comparison_to_keyword_rows(
+      filing: filing,
+      other_filing: other_filing,
+      keyword: keyword
+    )
+
+    csv = CSV.generate do |out|
+      out << DataTableFormatter::COMPARISON_COLUMNS
+      rows.each { |row| out << row }
+    end
+
+    filename = [
+      filing.name.parameterize,
+      other_filing.qq_yyyy&.tr(" ", "_"),
+      "vs",
+      filing.qq_yyyy&.tr(" ", "_"),
+      "keyword",
+      keyword.parameterize
+    ].compact.join("_") + ".csv"
+
+    send_data csv, filename: filename, type: "text/csv"
   end
 
   def all_cusip_holders_data

@@ -44,6 +44,26 @@ meta_description "Comparison of #{@filing.name} public holdings disclosures from
   %>
 </div>
 
+<div class="mb-8">
+  <label for="comparisonKeyword" class="block font-medium text-gray-700">Export keyword comparison CSV</label>
+  <div class="mt-1 flex flex-wrap items-center gap-2">
+    <input
+      id="comparisonKeyword"
+      type="text"
+      class="border-gray-300 w-64"
+      placeholder="e.g. INTC, Intel, 458140100"
+    />
+    <button
+      id="comparisonKeywordExport"
+      type="button"
+      class="px-4 py-2 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800"
+      data-url="<%= thirteen_f_comparison_keyword_csv_path(external_id: @filing.external_id, other_external_id: @other_filing.external_id) %>"
+    >
+      Download Keyword CSV
+    </button>
+  </div>
+</div>
+
 <div class="w-max max-w-full">
   <table id="filingComparison" class="filing-comparison-table border shadow table-fixed" data-url="<%= thirteen_f_comparison_data_path(external_id: @filing.external_id, other_external_id: @other_filing.external_id) %>">
     <thead>

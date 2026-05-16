@@ -230,6 +230,30 @@ $(function() {
     dom: 'l<"w-52"f>rtip<"mt-6 sm:mt-0"B>'
   });
 
+  function downloadComparisonKeywordCsv() {
+    const button = $('#comparisonKeywordExport');
+    const input = $('#comparisonKeyword');
+    if (button.length === 0 || input.length === 0) return;
+
+    const keyword = input.val().toString().trim();
+    if (keyword.length === 0) {
+      alert('Please enter a keyword first');
+      input.focus();
+      return;
+    }
+
+    const url = `${button.data('url')}?keyword=${encodeURIComponent(keyword)}`;
+    window.location.href = url;
+  }
+
+  $('#comparisonKeywordExport').on('click', downloadComparisonKeywordCsv);
+  $('#comparisonKeyword').on('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      downloadComparisonKeywordCsv();
+    }
+  });
+
   $('#managerCusipHoldings').DataTable({
     ajax: {
       cache: true,

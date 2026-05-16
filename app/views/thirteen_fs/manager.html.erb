@@ -20,6 +20,25 @@ meta_description "Historical SEC 13F filings by #{@filer.name}"
   </div>
 </div>
 
+<div class="mb-8">
+  <label for="compareYear" class="block font-medium text-gray-700">Compare selected quarter to previous quarter</label>
+  <form action="<%= manager_quarter_comparison_path(@filer) %>" method="get" class="mt-1 flex flex-wrap items-center gap-2">
+    <select id="compareYear" name="year" class="border-gray-300 w-32">
+      <option value="">Latest year</option>
+      <% @compare_year_options.each do |year| %>
+        <option value="<%= year %>"><%= year %></option>
+      <% end %>
+    </select>
+    <select id="compareQuarter" name="quarter" class="border-gray-300 w-32">
+      <option value="">Latest quarter</option>
+      <% @compare_quarter_options.each do |quarter| %>
+        <option value="<%= quarter %>">Q<%= quarter %></option>
+      <% end %>
+    </select>
+    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800">Open Comparison</button>
+  </form>
+</div>
+
 <div class="w-max max-w-full">
   <table id="managerFilings" class="border shadow table-fixed">
     <thead>

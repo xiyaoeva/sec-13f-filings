@@ -13,6 +13,50 @@ class ThirteenFsController < ApplicationController
       thirteen_fs.
       without_xml_fields.
       most_recent
+
+    quarter_pairs = @filings.
+      select { |f| f.report_year.present? && f.report_quarter.present? }.
+      map { |f| [f.report_year, f.report_quarter] }.
+      uniq
+
+    @compare_year_options = quarter_pairs.map(&:first).uniq.sort.reverse
+    @compare_quarter_options = [4, 3, 2, 1]
+  end
+
+  def compare_by_quarter
+    filer = ThirteenFFiler.find_by_param!(params[:id])
+    filings_scope = filer.
+      thirteen_fs.
+      processed.
+      exclude_restated.
+      without_xml_fields
+
+    year = params[:year]
+    quarter = params[:quarter]
+
+    selected_filing =
+      if year.present? && quarter.present?
+        filings_scope.
+          where(report_year: year.to_i, report_quarter: quarter.to_i).
+          most_recent.
+          first
+      else
+        filings_scope.most_recent.first
+      end
+
+    head :not_found and return unless selected_filing
+
+    previous_filing = filings_scope.
+      where("report_date < ?", selected_filing.report_date).
+      most_recent.
+      first
+
+    head :not_found and return unless previous_filing
+
+    redirect_to thirteen_f_comparison_path(
+      external_id: selected_filing.external_id,
+      other_external_id: previous_filing.external_id
+    )
   end
 
   def holdings_aggregated

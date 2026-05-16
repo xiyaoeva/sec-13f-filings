@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get '/newest', to: 'thirteen_fs#newest_filings', as: :newest_filings
 
   get '/manager/:id', to: 'thirteen_fs#manager', as: :manager
+  get '/manager/:id/compare', to: 'thirteen_fs#compare_by_quarter', as: :manager_quarter_comparison
   get '/manager/:cik/cusip/:cusip', to: 'thirteen_fs#manager_cusip_history', as: :manager_cusip_history
 
   get '/13f/:id', to: 'thirteen_fs#holdings_aggregated', as: :thirteen_f
@@ -18,6 +19,7 @@ Rails.application.routes.draw do
   get '/data/13f/:external_id', to: 'data#thirteen_f_data', as: :thirteen_f_data
   get '/data/13f/:external_id/detailed', to: 'data#thirteen_f_detailed_data', as: :thirteen_f_detailed_data
   get '/data/13f/:external_id/compare/:other_external_id', to: 'data#compare_holdings_data', as: :thirteen_f_comparison_data
+  get '/data/13f/:external_id/compare/:other_external_id/keyword_csv', to: 'data#compare_holdings_keyword_csv', as: :thirteen_f_comparison_keyword_csv
   get '/data/cusip/:cusip/:year/:quarter', to: 'data#all_cusip_holders_data', as: :all_cusip_holders_data
   get '/data/manager/:cik/cusip/:cusip', to: 'data#manager_cusip_history_data', as: :manager_cusip_history_data
 end

@@ -1,4 +1,20 @@
 class DataTableFormatter
+  COMPARISON_COLUMNS = [
+    "Sym",
+    "Issuer Name",
+    "Cl",
+    "CUSIP",
+    "Option Type",
+    "Current Shares/Principal",
+    "Previous Shares/Principal",
+    "Shares Diff",
+    "Shares Chg %",
+    "Current Value ($000)",
+    "Previous Value ($000)",
+    "Value Diff",
+    "Value Chg %"
+  ].freeze
+
   def self.thirteen_f_to_aggregated_datatable(thirteen_f)
     rows = thirteen_f.aggregate_holdings.descend_by_value.map do |h|
       if h.value
@@ -104,6 +120,24 @@ class DataTableFormatter
     end
 
     {data: rows}
+  end
+
+  def self.thirteen_f_comparison_to_keyword_rows(filing:, other_filing:, keyword:)
+    rows = thirteen_f_comparison_to_datatable(filing, other_filing)[:data]
+    symbol_by_cusip = CusipSymbolMapping.
+      where(cusip: rows.map { |r| r[2] }.uniq).
+      pluck(:cusip, :symbol).
+      to_h
+
+    normalized_keyword = keyword.to_s.strip.downcase
+
+    rows.filter_map do |row|
+      symbol = symbol_by_cusip[row[2]]
+      searchable_values = [symbol, row[0], row[1], row[2], row[3]].compact.map { |v| v.to_s.downcase }
+      next unless searchable_values.any? { |v| v.include?(normalized_keyword) }
+
+      [symbol, *row]
+    end
   end
 
   def self.all_cusip_holdings_to_datatable(cusip:, year:, quarter:)
